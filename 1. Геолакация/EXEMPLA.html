@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Geolocation</title>
+    <style>
+        #google-maps {
+            display: inline-block;
+            width: 600px;
+            height: 600px;
+            border: 1px dashed cadetblue;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1xeLYL_HU5t4rjd9g0Gf-ccAMTi8NAEo"></script>
+    <script>
+        window.addEventListener("load", function () {
+            var success = function (position) {
+                    var latitude = document.getElementById("latitude"),
+                        longitude = document.getElementById("longitude"),
+                        accuracy = document.getElementById("accuracy"),
+                        containerMap = document.getElementById("google-maps"),
+                        coords = position.coords, map, label, center;
+
+                    latitude.textContent = String(coords.latitude);
+                    longitude.textContent = String(coords.longitude);
+                    accuracy.textContent = String(coords.accuracy);
+
+                    map = new google.maps.Map(containerMap, {
+                        zoom: 13,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                    });
+
+                    center = {
+                        lat: coords.latitude,
+                        lng: coords.longitude
+                    };
+
+                    map.setCenter(center);
+
+                    label = new google.maps.InfoWindow();
+                    label.setContent("Мы тут!");
+                    label.setPosition(center);
+                    label.open(map);
+
+                },
+                failure = function (positionError) {
+                    var stringError = "",
+                        error = document.getElementById("error"),
+                        codeError = positionError.code;
+
+                    switch (codeError) {
+                        case 1:
+                            stringError = "Нет разрешения";
+                            break;
+                        case 2:
+                            stringError = "Техническая ошибка";
+                            break;
+                        case 3:
+                            stringError = "Превышено время ожидания";
+                            break;
+                        default: {
+                            stringError = "Не знаю, что случилось";
+                        }
+                    }
+
+                    error.textContent = String(stringError);
+                };
+
+            navigator.geolocation.getCurrentPosition(success, failure)
+        });
+    </script>
+</head>
+<body>
+<table>
+    <tfoot>
+    <tr>
+        <th colspan="2" id="error"></th>
+    </tr>
+    </tfoot>
+    <tbody>
+    <tr>
+        <td>широта:</td>
+        <td id="latitude"></td>
+    </tr>
+    <tr>
+        <td>долгота:</td>
+        <td id="longitude"></td>
+    </tr>
+    <tr>
+        <td>точность в m.:</td>
+        <td id="accuracy"></td>
+    </tr>
+    </tbody>
+</table>
+<div id="google-maps">
+
+</div>
+</body>
+</html>
