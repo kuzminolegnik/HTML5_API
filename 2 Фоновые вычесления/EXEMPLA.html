@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Worker</title>
+    <style>
+        fieldset {
+            display: inline-block;
+            width: 600px;
+            min-height: 200px;
+            border: 1px dashed cadetblue;
+            padding: 10px 5px;
+            margin: 10px 0;
+        }
+        fieldset #output{
+            margin: 0;
+            padding: 0;
+        }
+        #output span {
+            color: cornflowerblue;
+        }
+    </style>
+    <script>
+        window.addEventListener("load", function () {
+            var btn = document.getElementById("worker"),
+                worker = new Worker("WORKER.js"),
+                fieldCommand = document.getElementById("command"),
+                output = document.getElementById("output");
+
+            btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                var command = fieldCommand.value;
+
+                if (!command) {
+                    alert("Command is required");
+                    return;
+                }
+
+                worker.postMessage(fieldCommand.value);
+                worker.onmessage = function (event) {
+                    output.innerHTML += (new Date()).toLocaleString() + ": <span>" + String(event.data) + "</span><br/>";
+                };
+            })
+        });
+    </script>
+</head>
+<body>
+    <form>
+        <label for="command">COMMAND</label>
+        <input required placeholder="Please set command START" id="command" type="text"/>
+        <button id="worker">START WORK</button>
+    </form>
+    <fieldset>
+        <legend>КОНСОЛЬ</legend>
+        <p id="output">
+
+        </p>
+    </fieldset>
+
+</body>
+</html>
