@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Storage</title>
+    <style>
+        fieldset:nth-child(1) {
+            width: 400px;
+            border: 2px dashed lightslategray;
+            background-color: lavender;
+            min-height: 100px;
+            color: #4e5768;
+        }
+
+        fieldset:nth-child(2) {
+            width: 400px;
+            background-color: aliceblue;
+            border: 2px dashed lightblue;
+            min-height: 170px;
+            color: #4e5768;
+        }
+
+        fieldset legend {
+            color: lightslategray;
+            font-size: 18px;
+            font-style: italic;
+        }
+
+        fieldset label {
+            min-width: 130px;
+            display: inline-block;
+        }
+
+        fieldset button {
+            margin-top: 10px;
+            width: 100px;
+        }
+
+        input, select {
+            box-sizing: border-box;
+            width: 190px;
+            margin-top: 5px;
+        }
+
+        output {
+            margin-top: 10px;
+            display: block;
+        }
+
+        table tr td:first-child {
+            text-align: right;
+            font-weight: bolder;
+        }
+
+    </style>
+    <script type="application/javascript">
+
+        var updateList  = function () {
+            var select = document.getElementById("query-key"),
+                length = localStorage.length,
+                key, row, option, i;
+
+            select.innerHTML = "";
+
+            for (i = 0; i < length; i++) {
+                key = localStorage.key(i);
+                row = JSON.parse(localStorage[key]);
+                option = new Option(row["fio"], key);
+                select.appendChild(option)
+            }
+
+        };
+
+        window.addEventListener("storage", function () {
+            updateList();
+        }, false);
+
+        window.addEventListener("load", function () {
+            updateList();
+
+            document.forms["save"].addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                var form  = event.target,
+                    fields = form.elements;
+
+                localStorage.setItem((new Date()).getTime(), JSON.stringify({
+                    age: fields["age"].value,
+                    fio: fields["fio"].value
+                }));
+
+                form.reset();
+                updateList();
+                alert("Запись сохранена");
+            });
+
+            document.forms["query"].addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                var form  = event.target,
+                    fields = form.elements,
+                    key = fields["key"].value,
+                    output = document.getElementById("output-query");
+
+                var item = localStorage.getItem(key);
+
+                if (!item) {
+                    alert("Запись не найдена")
+                }
+
+                item = JSON.parse(item);
+
+                output.innerHTML =
+                    "<hr/>" +
+                    "<table>" +
+                    "<tr>" +
+                    "<td>Ключ:</td>" +
+                    "<td>" + key + "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                    "<td>ФИО:</td>" +
+                    "<td>" + item["fio"] + "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                    "<td>Возраст:</td>" +
+                    "<td>" + item["age"] + "</td>" +
+                    "</tr>" +
+                    "</table>"
+            });
+
+        });
+    </script>
+</head>
+<body>
+<fieldset>
+    <legend>Сохранить</legend>
+    <form name="save">
+        <label for="save-name">ФИО:</label>
+        <input required name="fio" id="save-name" type="text"/><br/>
+        <label for="save-age">Возраст:</label>
+        <input required name="age" id="save-age" type="number" min="1" max="120"/><br/>
+        <button id="save-btn">Сохранить</button>
+    </form>
+</fieldset>
+<fieldset>
+    <legend>Поиск</legend>
+    <form name="query">
+        <label for="query-key">Пользователи:</label>
+        <select required name="key" id="query-key"></select><br/>
+        <button id="query-btn">Найти</button>
+    </form>
+    <output id="output-query"></output>
+</fieldset>
+</body>
+</html>
