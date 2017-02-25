@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag and drop</title>
+    <style>
+        #draggable {
+            display: block;
+            width: 300px;
+            height: 300px;
+            border: 2px dashed lightslategray;
+            background-color: lavender;
+            cursor: move;
+            position: relative;
+        }
+
+        #drag-container-el,
+        #drag-container-img {
+            display: inline-block;
+            width: 400px;
+            height: 400px;
+            background-color: aliceblue;
+            border: 2px dashed lightblue;
+            position: relative;
+            margin: 4px;
+        }
+
+        #draggable label,
+        #drag-container-el label,
+        #drag-container-img label {
+            color: lightslategray;
+            font-size: 18px;
+            font-style: italic;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 280px;
+            height: 25px;
+            text-align: center;
+        }
+    </style>
+    <script type="application/javascript">
+        window.addEventListener("load", function () {
+            var dragEl = document.getElementById("draggable"),
+                dragCntImg = document.getElementById("drag-container-img"),
+                dragCntEl = document.getElementById("drag-container-el"),
+                onDrag = function (event) {
+                    event.stopPropagation();
+                    event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                };
+
+            dragEl.addEventListener("dragstart", function (event) {
+                event.dataTransfer.setData("element-id", event.target.id)
+            });
+
+            dragCntImg.addEventListener("dragenter", onDrag);
+
+            dragCntEl.addEventListener("dragenter", onDrag);
+
+            dragCntImg.addEventListener("dragover", onDrag);
+
+            dragCntEl.addEventListener("dragover", onDrag);
+
+            dragCntImg.addEventListener("drop", function (event) {
+                event.stopPropagation();
+                event.preventDefault ? event.preventDefault() : event.returnValue = false;
+
+                var file, reader;
+                file = event.dataTransfer.files[0];
+                if (!file) {
+                    return;
+                }
+                reader = new FileReader();
+
+                reader.onload = function (event) {
+                    var img = new Image(300, 300);
+                    img.src = event.target.result;
+                    dragCntImg.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            dragCntEl.addEventListener("drop", function (event) {
+                event.stopPropagation();
+                event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                var transferEl = document.getElementById(
+                    event.dataTransfer.getData("element-id")
+                );
+                dragCntEl.appendChild(transferEl);
+            });
+
+        });
+    </script>
+</head>
+<body>
+<div id="draggable" draggable="true">
+    <label>Перетащите элемент</label>
+</div>
+<div id="drag-container-el">
+    <label>Вставте элемент</label>
+</div>
+<div id="drag-container-img">
+    <label>Вставте изображение</label>
+</div>
+</body>
+</html>
