@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Read file</title>
+    <style>
+        output {
+            background-color: azure;
+            border: 1px dashed cadetblue;
+            display: inline-block;
+            min-height: 200px;
+            width: 600px;
+            margin-top: 20px;
+            color: dimgray;
+        }
+    </style>
+    <script>
+        window.addEventListener("load", function () {
+            var btnText = document.getElementById("btn-file-read"),
+                btnBinary = document.getElementById("btn-file-read-binary"),
+                btnEncoded = document.getElementById("btn-file-read-encoded"),
+                fileRead = document.getElementById("file-read"),
+                output = document.getElementById("output");
+
+            var readFiles = function (type) {
+                var files = fileRead.files,
+                    i = 0, length = files.length,
+                    file, reader, result, j = 0, bytes;
+
+                output.innerHTML = "";
+
+                for (i; i < length; i++) {
+                    file = files[i];
+                    reader = new FileReader();
+                    reader.onload = function (file) {
+                        return function (event) {
+                            result = event.target.result;
+                            if (type == "binary") {
+                                bytes = "";
+                                for (j = 0; j < result.length; j++) {
+                                    bytes += (result.charCodeAt(j)).toString(16) + " ";
+                                }
+                                result = bytes;
+                            }
+                            else if (type == "data-url") {
+                                output.innerHTML += "<img src='" + result + "'/><br/>";
+                                return;
+                            }
+                            else {
+                                result = event.target.result;
+                            }
+
+                            output.innerHTML +=
+                                file.name + ", " +
+                                file.size + ", " +
+                                file.type + "<br/>" +
+                                result + "<br/>";
+                        };
+                    }(file);
+
+                    switch (type.toLocaleString()) {
+                        case "text":
+                            reader.readAsText(file);
+                            break;
+                        case "binary":
+                            reader.readAsBinaryString(file);
+                            break;
+                        case "data-url":
+                            reader.readAsDataURL(file);
+                            break;
+                        default:
+                            reader.readAsText(file);
+                            break;
+                    }
+                }
+            };
+
+            btnText.addEventListener("click", function (event) {
+                event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                readFiles("text");
+            });
+
+            btnBinary.addEventListener("click", function (event) {
+                event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                readFiles("binary");
+            });
+
+            btnEncoded.addEventListener("click", function (event) {
+                event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                readFiles("data-url");
+            });
+
+        });
+    </script>
+</head>
+<body>
+<form>
+    <label for="file-read">SELECT FILE</label>
+    <input id="file-read" type="file" multiple/>
+    <button id="btn-file-read">READ FILE TEXT</button>
+    <button id="btn-file-read-binary">READ FILE BINARY</button>
+    <button id="btn-file-read-encoded">READ FILE DATA URL</button>
+</form>
+<output id="output">
+
+</output>
+</body>
+</html>
